@@ -2,7 +2,7 @@
 
 A fully animated personal portfolio website showcasing my projects, skills, and experience as a full-stack developer.
 
-🔗 **Live Site:** [Add your live URL here once deployed]
+🔗 **Live Site:** raj-singh-five.vercel.app 
 
 ## ✨ Features
 
