@@ -21,6 +21,29 @@ export default function Page() {
   const [menuOpen, setMenuOpen] = useState(false)
   const { scrollY } = useScroll()
 
+  const [formData, setFormData] = useState({ name: '', email: '', message: '' })
+  const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle')
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault()
+    setStatus('sending')
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      })
+
+      if (!response.ok) throw new Error('Failed to send')
+
+      setStatus('success')
+      setFormData({ name: '', email: '', message: '' })
+    } catch (error) {
+      setStatus('error')
+    }
+  }
+
   useMotionValueEvent(scrollY, 'change', (latest) => {
     const current = sections.find((section) => {
       const element = document.getElementById(section)
@@ -62,7 +85,63 @@ export default function Page() {
 
         <motion.section id="projects" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.12 }} variants={sectionVariants} className="bg-foreground px-6 py-28 text-background sm:px-10 lg:px-16"><div className="mx-auto max-w-6xl"><div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end"><div><p className="font-mono text-xs uppercase tracking-[0.22em] text-primary">03 / Selected work</p><h2 className="mt-5 font-serif text-4xl tracking-tight sm:text-5xl">Things I&apos;ve shipped.</h2></div><p className="max-w-xs text-sm leading-6 text-background/60">A few experiments and products that show how I think, design, and build.</p></div><motion.div variants={stagger} className="mt-14 grid gap-6 lg:grid-cols-3">{projects.map((project) => <motion.article key={project.title} variants={item} whileHover={{ y: -8 }} transition={{ duration: 0.25 }} className="group overflow-hidden rounded-3xl border border-background/15 bg-background/5 shadow-xl"><div className="aspect-[1.25] overflow-hidden"><img src={project.image} alt={`${project.title} project preview`} className="size-full object-cover grayscale transition duration-700 group-hover:scale-105 group-hover:grayscale-0" /></div><div className="p-6"><div className="mb-8 flex flex-wrap gap-2">{project.tags.map((tag) => <span key={tag} className="rounded-full border border-background/15 px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-background/60">{tag}</span>)}</div><h3 className="font-serif text-2xl">{project.title}</h3><p className="mt-3 min-h-14 text-sm leading-6 text-background/60">{project.description}</p><a href={project.github} target="_blank" rel="noopener noreferrer" className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-primary transition-all hover:gap-3">View code <ArrowUpRight className="size-4" /></a></div></motion.article>)}</motion.div></div></motion.section>
 
-        <motion.section id="contact" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={sectionVariants} className="px-6 py-28 sm:px-10 lg:px-16"><div className="mx-auto grid max-w-6xl gap-14 lg:grid-cols-[1fr_0.9fr]"><div><p className="font-mono text-xs uppercase tracking-[0.22em] text-primary">04 / Contact</p><h2 className="mt-5 max-w-lg text-balance font-serif text-5xl leading-tight tracking-tight sm:text-7xl">Have an idea? <span className="text-primary">Let&apos;s make it real.</span></h2><a href="mailto:workforraj15@gmail.com" className="mt-10 inline-flex items-center gap-3 text-muted-foreground transition-colors hover:text-foreground"><Mail className="size-4 text-primary" /> workforraj15@gmail.com</a></div><form className="flex flex-col gap-5" onSubmit={(event) => event.preventDefault()}><label className="flex flex-col gap-2 text-sm"><span className="text-muted-foreground">Your name</span><input className="rounded-2xl border border-border bg-card px-4 py-3.5 outline-none transition-colors focus:border-primary" placeholder="Jane Smith" /></label><label className="flex flex-col gap-2 text-sm"><span className="text-muted-foreground">Email address</span><input type="email" className="rounded-2xl border border-border bg-card px-4 py-3.5 outline-none transition-colors focus:border-primary" placeholder="jane@company.com" /></label><label className="flex flex-col gap-2 text-sm"><span className="text-muted-foreground">Message</span><textarea rows={4} className="resize-none rounded-2xl border border-border bg-card px-4 py-3.5 outline-none transition-colors focus:border-primary" placeholder="Tell me a little about your project..." /></label><motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="mt-2 inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-4 text-sm font-medium text-primary-foreground">Send message <ArrowUpRight className="size-4" /></motion.button></form></div></motion.section>
+        <motion.section id="contact" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={sectionVariants} className="px-6 py-28 sm:px-10 lg:px-16">
+          <div className="mx-auto grid max-w-6xl gap-14 lg:grid-cols-[1fr_0.9fr]">
+            <div>
+              <p className="font-mono text-xs uppercase tracking-[0.22em] text-primary">04 / Contact</p>
+              <h2 className="mt-5 max-w-lg text-balance font-serif text-5xl leading-tight tracking-tight sm:text-7xl">Have an idea? <span className="text-primary">Let&apos;s make it real.</span></h2>
+              <a href="mailto:workforraj15@gmail.com" className="mt-10 inline-flex items-center gap-3 text-muted-foreground transition-colors hover:text-foreground"><Mail className="size-4 text-primary" /> workforraj15@gmail.com</a>
+            </div>
+            <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
+              <label className="flex flex-col gap-2 text-sm">
+                <span className="text-muted-foreground">Your name</span>
+                <input
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  required
+                  className="rounded-2xl border border-border bg-card px-4 py-3.5 outline-none transition-colors focus:border-primary"
+                  placeholder="Write your name here"
+                />
+              </label>
+              <label className="flex flex-col gap-2 text-sm">
+                <span className="text-muted-foreground">Email address</span>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  required
+                  className="rounded-2xl border border-border bg-card px-4 py-3.5 outline-none transition-colors focus:border-primary"
+                  placeholder="Write your email here"
+                />
+              </label>
+              <label className="flex flex-col gap-2 text-sm">
+                <span className="text-muted-foreground">Message</span>
+                <textarea
+                  rows={4}
+                  value={formData.message}
+                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                  required
+                  className="resize-none rounded-2xl border border-border bg-card px-4 py-3.5 outline-none transition-colors focus:border-primary"
+                  placeholder="Tell me a little about your project..."
+                />
+              </label>
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                disabled={status === 'sending'}
+                className="mt-2 inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-4 text-sm font-medium text-primary-foreground disabled:opacity-60"
+              >
+                {status === 'sending' ? 'Sending...' : 'Send message'} <ArrowUpRight className="size-4" />
+              </motion.button>
+              {status === 'success' && (
+                <p className="text-sm text-green-600">Message sent! I&apos;ll get back to you soon.</p>
+              )}
+              {status === 'error' && (
+                <p className="text-sm text-red-500">Something went wrong. Please try emailing me directly.</p>
+              )}
+            </form>
+          </div>
+        </motion.section>
 
         <footer className="border-t border-border px-6 py-8 sm:px-10 lg:px-16"><div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-5 text-xs text-muted-foreground sm:flex-row"><p>© 2026 Raj Kumar Singh. Built with curiosity.</p><div className="flex items-center gap-2"><a href="https://github.com/RajCoder-15" target="_blank" rel="noopener noreferrer" aria-label="GitHub" className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-2 transition-colors hover:border-primary hover:text-foreground"><ExternalLink className="size-4" /> GitHub</a><a href="https://www.linkedin.com/in/raj-singh-6080072a1/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-2 transition-colors hover:border-primary hover:text-foreground"><Mail className="size-4" /> LinkedIn</a></div></div></footer>
       </motion.div>
