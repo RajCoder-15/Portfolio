@@ -1,44 +1,142 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import type { FormEvent } from 'react'
 import { motion, useMotionValueEvent, useScroll } from 'framer-motion'
-import { ArrowUpRight, Check, ExternalLink, Mail, Menu, Sparkles, X } from 'lucide-react'
+import {
+  ArrowUpRight,
+  Check,
+  ExternalLink,
+  Mail,
+  Menu,
+  Sparkles,
+  X,
+} from 'lucide-react'
 
 const sections = ['home', 'about', 'skills', 'projects', 'contact']
-const skills = ['React', 'Node.js', 'Express', 'MongoDB', 'Python', 'AI-assisted development']
-const projects = [
-  { title: 'Smart Product Rating System', description: 'A full-stack MERN application where users can add products they have bought and rate them, helping others make informed purchase decisions based on real reviews.', tags: ['React', 'Node.js', 'MongoDB' , 'Express'], image: 'https://plus.unsplash.com/premium_photo-1714832549765-046081a2bdc9?q=80&w=1157&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' ,  github: 'https://github.com/RajCoder-15/Smart-Product-Rating-Review-System'},
-  { title: 'ColabDocs', description: ' A React-based document editor that lets users write and save text documents directly in the browser without needing external word-processing software.', tags: ['React', 'JavaScript'], image: 'https://plus.unsplash.com/premium_photo-1669658981976-4b72e927a902?q=80&w=1253&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' , github : 'https://github.com/RajCoder-15/CollabDOCS' },
-  { title: 'Weather App', description: 'A Python application that displays real-time weather conditions for any location using a live weather API.', tags: ['Python', 'API Integration'], image: 'https://images.unsplash.com/photo-1705077296278-d82dd5c8662f?q=80&w=2009&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' , github : 'https://github.com/RajCoder-15/Weather-Project' },
+
+const skills = [
+  'React',
+  'Node.js',
+  'Express',
+  'MongoDB',
+  'Python',
+  'AI-assisted development',
 ]
 
-const sectionVariants = { hidden: { opacity: 0, y: 32 }, visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: 'easeOut' } } }
-const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.09 } } }
-const item = { hidden: { opacity: 0, y: 18, scale: 0.96 }, visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.45, ease: 'easeOut' } } }
+const projects = [
+  {
+    title: 'Smart Product Rating System',
+    description:
+      'A full-stack MERN application where users can add products they have bought and rate them, helping others make informed purchase decisions based on real reviews.',
+    tags: ['React', 'Node.js', 'MongoDB', 'Express'],
+    image:
+      'https://plus.unsplash.com/premium_photo-1714832549765-046081a2bdc9?q=80&w=1157&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+    github:
+      'https://github.com/RajCoder-15/Smart-Product-Rating-Review-System',
+  },
+  {
+    title: 'ColabDocs',
+    description:
+      'A React-based document editor that lets users write and save text documents directly in the browser without needing external word-processing software.',
+    tags: ['React', 'JavaScript'],
+    image:
+      'https://plus.unsplash.com/premium_photo-1669658981976-4b72e927a902?q=80&w=1253&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+    github: 'https://github.com/RajCoder-15/CollabDOCS',
+  },
+  {
+    title: 'Weather App',
+    description:
+      'A Python application that displays real-time weather conditions for any location using a live weather API.',
+    tags: ['Python', 'API Integration'],
+    image:
+      'https://images.unsplash.com/photo-1705077296278-d82dd5c8662f?q=80&w=2009&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+    github: 'https://github.com/RajCoder-15/Weather-Project',
+  },
+]
+
+const sectionVariants = {
+  hidden: {
+    opacity: 0,
+    y: 32,
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.7,
+      ease: 'easeOut',
+    },
+  },
+}
+
+const stagger = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.09,
+    },
+  },
+}
+
+const item = {
+  hidden: {
+    opacity: 0,
+    y: 18,
+    scale: 0.96,
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      duration: 0.45,
+      ease: 'easeOut',
+    },
+  },
+}
 
 export default function Page() {
   const [active, setActive] = useState('home')
   const [menuOpen, setMenuOpen] = useState(false)
-  const { scrollY } = useScroll()
 
-  const [formData, setFormData] = useState({ name: '', email: '', message: '' })
-  const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle')
+  // Keep both scroll values inside the component
+  const { scrollY, scrollYProgress } = useScroll()
 
-  const handleSubmit = async (event: React.FormEvent) => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    message: '',
+  })
+
+  const [status, setStatus] = useState<
+    'idle' | 'sending' | 'success' | 'error'
+  >('idle')
+
+  const handleSubmit = async (event: FormEvent) => {
     event.preventDefault()
     setStatus('sending')
 
     try {
       const response = await fetch('/api/contact', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify(formData),
       })
 
-      if (!response.ok) throw new Error('Failed to send')
+      if (!response.ok) {
+        throw new Error('Failed to send')
+      }
 
       setStatus('success')
-      setFormData({ name: '', email: '', message: '' })
+
+      setFormData({
+        name: '',
+        email: '',
+        message: '',
+      })
     } catch (error) {
       setStatus('error')
     }
@@ -47,104 +145,641 @@ export default function Page() {
   useMotionValueEvent(scrollY, 'change', (latest) => {
     const current = sections.find((section) => {
       const element = document.getElementById(section)
-      return element && latest >= element.offsetTop - 180 && latest < element.offsetTop + element.offsetHeight - 180
+
+      return (
+        element &&
+        latest >= element.offsetTop - 180 &&
+        latest <
+          element.offsetTop + element.offsetHeight - 180
+      )
     })
-    if (current) setActive(current)
+
+    if (current) {
+      setActive(current)
+    }
   })
 
   useEffect(() => {
     document.documentElement.style.scrollBehavior = 'smooth'
-    return () => { document.documentElement.style.scrollBehavior = '' }
+
+    return () => {
+      document.documentElement.style.scrollBehavior = ''
+    }
   }, [])
 
-  const goTo = (section: string) => { document.getElementById(section)?.scrollIntoView({ behavior: 'smooth' }); setMenuOpen(false) }
+  const goTo = (section: string) => {
+    document
+      .getElementById(section)
+      ?.scrollIntoView({ behavior: 'smooth' })
+
+    setMenuOpen(false)
+  }
 
   return (
     <main className="min-h-screen overflow-hidden bg-background text-foreground">
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }}>
+
+      {/* Scroll progress bar */}
+      <motion.div
+        style={{ scaleX: scrollYProgress }}
+        className="fixed top-0 left-0 right-0 z-[60] h-[3px] origin-left bg-primary"
+      />
+
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8 }}
+      >
+
+        {/* NAVBAR */}
         <header className="fixed inset-x-0 top-0 z-50 px-4 pt-4 sm:px-6 lg:px-10">
-          <nav className="mx-auto flex max-w-6xl items-center justify-between rounded-full border border-border/80 bg-background/85 px-4 py-3 shadow-sm backdrop-blur-xl sm:px-6" aria-label="Main navigation">
-            <button onClick={() => goTo('home')} className="font-mono text-sm font-semibold tracking-tight text-foreground">RK<span className="text-primary">.</span></button>
+          <nav
+            className="mx-auto flex max-w-6xl items-center justify-between rounded-full border border-border/80 bg-background/85 px-4 py-3 shadow-sm backdrop-blur-xl sm:px-6"
+            aria-label="Main navigation"
+          >
+
+            <button
+              onClick={() => goTo('home')}
+              className="font-mono text-sm font-semibold tracking-tight text-foreground"
+            >
+              RK<span className="text-primary">.</span>
+            </button>
+
             <div className="hidden items-center gap-1 md:flex">
-              {sections.map((section) => <button key={section} onClick={() => goTo(section)} className={`relative rounded-full px-4 py-2 text-xs font-medium capitalize transition-colors ${active === section ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}><span className="relative z-10">{section}</span>{active === section && <motion.span layoutId="nav-pill" className="absolute inset-0 rounded-full bg-secondary" transition={{ type: 'spring', stiffness: 360, damping: 30 }} />}</button>)}
+              {sections.map((section) => (
+                <button
+                  key={section}
+                  onClick={() => goTo(section)}
+                  className={`relative rounded-full px-4 py-2 text-xs font-medium capitalize transition-colors ${
+                    active === section
+                      ? 'text-foreground'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  <span className="relative z-10">
+                    {section}
+                  </span>
+
+                  {active === section && (
+                    <motion.span
+                      layoutId="nav-pill"
+                      className="absolute inset-0 rounded-full bg-secondary"
+                      transition={{
+                        type: 'spring',
+                        stiffness: 360,
+                        damping: 30,
+                      }}
+                    />
+                  )}
+                </button>
+              ))}
             </div>
-            <button className="hidden items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-medium text-primary-foreground transition-transform hover:scale-105 md:flex" onClick={() => goTo('contact')}>Let&apos;s talk <ArrowUpRight className="size-3.5" /></button>
-            <button className="rounded-full p-2 md:hidden" onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle navigation">{menuOpen ? <X className="size-5" /> : <Menu className="size-5" />}</button>
+
+            <button
+              className="hidden items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-medium text-primary-foreground transition-transform hover:scale-105 md:flex"
+              onClick={() => goTo('contact')}
+            >
+              Let&apos;s talk
+              <ArrowUpRight className="size-3.5" />
+            </button>
+
+            <button
+              className="rounded-full p-2 md:hidden"
+              onClick={() => setMenuOpen(!menuOpen)}
+              aria-label="Toggle navigation"
+            >
+              {menuOpen ? (
+                <X className="size-5" />
+              ) : (
+                <Menu className="size-5" />
+              )}
+            </button>
           </nav>
-          {menuOpen && <div className="mx-auto mt-2 flex max-w-6xl flex-col gap-1 rounded-3xl border border-border bg-background p-3 shadow-lg md:hidden">{sections.map((section) => <button key={section} onClick={() => goTo(section)} className="rounded-2xl px-4 py-3 text-left text-sm capitalize text-muted-foreground hover:bg-secondary hover:text-foreground">{section}</button>)}</div>}
+
+          {menuOpen && (
+            <div className="mx-auto mt-2 flex max-w-6xl flex-col gap-1 rounded-3xl border border-border bg-background p-3 shadow-lg md:hidden">
+              {sections.map((section) => (
+                <button
+                  key={section}
+                  onClick={() => goTo(section)}
+                  className="rounded-2xl px-4 py-3 text-left text-sm capitalize text-muted-foreground hover:bg-secondary hover:text-foreground"
+                >
+                  {section}
+                </button>
+              ))}
+            </div>
+          )}
         </header>
 
-        <section id="home" className="relative flex min-h-[760px] items-center px-6 pb-24 pt-40 sm:px-10 lg:px-16">
-          <div className="pointer-events-none absolute inset-0 overflow-hidden"><motion.div animate={{ x: [0, 35, 0], y: [0, -25, 0] }} transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }} className="absolute -right-24 top-20 size-96 rounded-full bg-primary/10 blur-3xl" /><motion.div animate={{ x: [0, -25, 0], y: [0, 30, 0] }} transition={{ duration: 15, repeat: Infinity, ease: 'easeInOut' }} className="absolute bottom-0 left-0 size-72 rounded-full bg-secondary blur-3xl" /></div>
-          <div className="relative mx-auto w-full max-w-6xl"><motion.div initial="hidden" animate="visible" variants={stagger} className="max-w-4xl"><motion.p variants={item} className="mb-7 flex items-center gap-2 font-mono text-xs uppercase tracking-[0.24em] text-primary"><Sparkles className="size-4" /> Available for thoughtful builds</motion.p><motion.h1 variants={item} className="max-w-4xl text-balance font-serif text-6xl leading-[0.98] tracking-[-0.05em] sm:text-8xl lg:text-[9.5rem]">Raj Kumar <span className="text-primary">Singh</span><span className="text-primary">.</span></motion.h1><motion.p variants={item} className="mt-9 max-w-xl text-pretty text-lg leading-8 text-muted-foreground sm:text-xl">I build full-stack web apps using <span className="font-medium text-foreground">MERN</span> turning curious ideas into fast, useful products.</motion.p><motion.div variants={item} className="mt-10 flex flex-wrap items-center gap-4"><button onClick={() => goTo('projects')} className="group inline-flex items-center gap-3 rounded-full bg-primary px-6 py-3.5 text-sm font-medium text-primary-foreground transition-transform hover:scale-105">See my work <ArrowUpRight className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></button><button onClick={() => goTo('about')} className="rounded-full border border-border px-6 py-3.5 text-sm font-medium transition-colors hover:bg-secondary">More about me</button><a href="/resume.pdf" target="_blank" rel="noopener noreferrer" className="rounded-full border border-border px-6 py-3.5 text-sm font-medium transition-colors hover:bg-secondary">Download Resume</a></motion.div></motion.div><motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.2 }} className="mt-24 flex items-center gap-5 text-xs text-muted-foreground"><span className="h-px w-12 bg-primary" /> Scroll to explore <span className="font-mono text-primary">01—05</span></motion.div></div>
+        {/* HOME */}
+        <section
+          id="home"
+          className="relative flex min-h-[760px] items-center px-6 pb-24 pt-40 sm:px-10 lg:px-16"
+        >
+          <div className="pointer-events-none absolute inset-0 overflow-hidden">
+
+            <motion.div
+              animate={{
+                x: [0, 35, 0],
+                y: [0, -25, 0],
+              }}
+              transition={{
+                duration: 12,
+                repeat: Infinity,
+                ease: 'easeInOut',
+              }}
+              className="absolute -right-24 top-20 size-96 rounded-full bg-primary/10 blur-3xl"
+            />
+
+            <motion.div
+              animate={{
+                x: [0, -25, 0],
+                y: [0, 30, 0],
+              }}
+              transition={{
+                duration: 15,
+                repeat: Infinity,
+                ease: 'easeInOut',
+              }}
+              className="absolute bottom-0 left-0 size-72 rounded-full bg-secondary blur-3xl"
+            />
+          </div>
+
+          <div className="relative mx-auto w-full max-w-6xl">
+
+            <motion.div
+              initial="hidden"
+              animate="visible"
+              variants={stagger}
+              className="max-w-4xl"
+            >
+
+              <motion.p
+                variants={item}
+                className="mb-7 flex items-center gap-2 font-mono text-xs uppercase tracking-[0.24em] text-primary"
+              >
+                <Sparkles className="size-4" />
+                Available for thoughtful builds
+              </motion.p>
+
+              <h1 className="max-w-4xl text-balance font-serif text-6xl leading-[0.98] tracking-[-0.05em] sm:text-8xl lg:text-[9.5rem]">
+                {['Raj', 'Kumar', 'Singh.'].map((word, i) => (
+                  <motion.span
+                    key={word}
+                    initial={{
+                      opacity: 0,
+                      y: 40,
+                    }}
+                    animate={{
+                      opacity: 1,
+                      y: 0,
+                    }}
+                    transition={{
+                      duration: 0.6,
+                      delay: 0.3 + i * 0.15,
+                      ease: 'easeOut',
+                    }}
+                    className={`mr-4 inline-block ${
+                      word === 'Singh.' || word === 'Kumar'
+                        ? 'text-primary'
+                        : ''
+                    }`}
+                  >
+                    {word}
+                  </motion.span>
+                ))}
+              </h1>
+
+              <motion.p
+                variants={item}
+                className="mt-9 max-w-xl text-pretty text-lg leading-8 text-muted-foreground sm:text-xl"
+              >
+                I build full-stack web apps using{' '}
+                <span className="font-medium text-foreground">
+                  MERN
+                </span>{' '}
+                turning curious ideas into fast, useful products.
+              </motion.p>
+
+              <motion.div
+                variants={item}
+                className="mt-10 flex flex-wrap items-center gap-4"
+              >
+
+                <button
+                  onClick={() => goTo('projects')}
+                  className="group inline-flex items-center gap-3 rounded-full bg-primary px-6 py-3.5 text-sm font-medium text-primary-foreground transition-transform hover:scale-105"
+                >
+                  See my work
+                  <ArrowUpRight className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                </button>
+
+                <button
+                  onClick={() => goTo('about')}
+                  className="rounded-full border border-border px-6 py-3.5 text-sm font-medium transition-colors hover:bg-secondary"
+                >
+                  More about me
+                </button>
+
+                <a
+                  href="/resume.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-full border border-border px-6 py-3.5 text-sm font-medium transition-colors hover:bg-secondary"
+                >
+                  Download Resume
+                </a>
+
+              </motion.div>
+            </motion.div>
+
+            <motion.div
+              initial={{
+                opacity: 0,
+                y: 20,
+              }}
+              animate={{
+                opacity: 1,
+                y: 0,
+              }}
+              transition={{
+                delay: 1.2,
+              }}
+              className="mt-24 flex items-center gap-5 text-xs text-muted-foreground"
+            >
+              <span className="h-px w-12 bg-primary" />
+              Scroll to explore
+              <span className="font-mono text-primary">
+                01—05
+              </span>
+            </motion.div>
+
+          </div>
         </section>
 
-        <motion.section id="about" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.25 }} variants={sectionVariants} className="border-t border-border px-6 py-28 sm:px-10 lg:px-16"><div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[0.7fr_1.3fr] lg:gap-24"><div><p className="font-mono text-xs uppercase tracking-[0.22em] text-primary">01 / About</p><h2 className="mt-5 font-serif text-4xl tracking-tight sm:text-5xl">A builder at heart.</h2></div><div><p className="max-w-2xl text-pretty text-xl leading-9 text-muted-foreground sm:text-2xl">I&apos;m a student developer focused on full-stack web development with the MERN stack. I enjoy turning ideas into working products from rating systems to real-time tools and I&apos;m constantly building, breaking, and improving things to get better at my craft. Currently exploring AI-assisted development to build faster and smarter.</p></div></div></motion.section>
+        {/* ABOUT */}
+        <motion.section
+          id="about"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{
+            once: true,
+            amount: 0.25,
+          }}
+          variants={sectionVariants}
+          className="border-t border-border px-6 py-28 sm:px-10 lg:px-16"
+        >
+          <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[0.7fr_1.3fr] lg:gap-24">
 
-        <motion.section id="skills" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.25 }} variants={sectionVariants} className="px-6 py-28 sm:px-10 lg:px-16"><div className="mx-auto max-w-6xl"><p className="font-mono text-xs uppercase tracking-[0.22em] text-primary">02 / Skills</p><div className="mt-12 flex flex-wrap gap-3">{skills.map((skill, index) => <motion.div key={skill} variants={item} transition={{ delay: index * 0.06 }} className="flex items-center gap-3 rounded-full border border-border bg-card px-5 py-3 text-sm shadow-sm transition-colors hover:border-primary/50"><Check className="size-4 text-primary" /> {skill}</motion.div>)}</div></div></motion.section>
-
-        <motion.section id="projects" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.12 }} variants={sectionVariants} className="bg-foreground px-6 py-28 text-background sm:px-10 lg:px-16"><div className="mx-auto max-w-6xl"><div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end"><div><p className="font-mono text-xs uppercase tracking-[0.22em] text-primary">03 / Selected work</p><h2 className="mt-5 font-serif text-4xl tracking-tight sm:text-5xl">Things I&apos;ve shipped.</h2></div><p className="max-w-xs text-sm leading-6 text-background/60">A few experiments and products that show how I think, design, and build.</p></div><motion.div variants={stagger} className="mt-14 grid gap-6 lg:grid-cols-3">{projects.map((project) => <motion.article key={project.title} variants={item} whileHover={{ y: -8 }} transition={{ duration: 0.25 }} className="group overflow-hidden rounded-3xl border border-background/15 bg-background/5 shadow-xl"><div className="aspect-[1.25] overflow-hidden"><img src={project.image} alt={`${project.title} project preview`} className="size-full object-cover grayscale transition duration-700 group-hover:scale-105 group-hover:grayscale-0" /></div><div className="p-6"><div className="mb-8 flex flex-wrap gap-2">{project.tags.map((tag) => <span key={tag} className="rounded-full border border-background/15 px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-background/60">{tag}</span>)}</div><h3 className="font-serif text-2xl">{project.title}</h3><p className="mt-3 min-h-14 text-sm leading-6 text-background/60">{project.description}</p><a href={project.github} target="_blank" rel="noopener noreferrer" className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-primary transition-all hover:gap-3">View code <ArrowUpRight className="size-4" /></a></div></motion.article>)}</motion.div></div></motion.section>
-
-        <motion.section id="contact" initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }} variants={sectionVariants} className="px-6 py-28 sm:px-10 lg:px-16">
-          <div className="mx-auto grid max-w-6xl gap-14 lg:grid-cols-[1fr_0.9fr]">
             <div>
-              <p className="font-mono text-xs uppercase tracking-[0.22em] text-primary">04 / Contact</p>
-              <h2 className="mt-5 max-w-lg text-balance font-serif text-5xl leading-tight tracking-tight sm:text-7xl">Have an idea? <span className="text-primary">Let&apos;s make it real.</span></h2>
-              <a href="mailto:workforraj15@gmail.com" className="mt-10 inline-flex items-center gap-3 text-muted-foreground transition-colors hover:text-foreground"><Mail className="size-4 text-primary" /> workforraj15@gmail.com</a>
+              <p className="font-mono text-xs uppercase tracking-[0.22em] text-primary">
+                01 / About
+              </p>
+
+              <h2 className="mt-5 font-serif text-4xl tracking-tight sm:text-5xl">
+                A builder at heart.
+              </h2>
             </div>
-            <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
+
+            <div>
+              <p className="max-w-2xl text-pretty text-xl leading-9 text-muted-foreground sm:text-2xl">
+                I&apos;m a student developer focused on full-stack web
+                development with the MERN stack. I enjoy turning ideas
+                into working products from rating systems to real-time
+                tools and I&apos;m constantly building, breaking, and
+                improving things to get better at my craft. Currently
+                exploring AI-assisted development to build faster and
+                smarter.
+              </p>
+            </div>
+
+          </div>
+        </motion.section>
+
+        {/* SKILLS */}
+        <motion.section
+          id="skills"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{
+            once: true,
+            amount: 0.25,
+          }}
+          variants={sectionVariants}
+          className="px-6 py-28 sm:px-10 lg:px-16"
+        >
+          <div className="mx-auto max-w-6xl">
+
+            <p className="font-mono text-xs uppercase tracking-[0.22em] text-primary">
+              02 / Skills
+            </p>
+
+            <div className="mt-12 flex flex-wrap gap-3">
+              {skills.map((skill, index) => (
+                <motion.div
+                  key={skill}
+                  variants={item}
+                  transition={{
+                    delay: index * 0.06,
+                  }}
+                  className="flex items-center gap-3 rounded-full border border-border bg-card px-5 py-3 text-sm shadow-sm transition-colors hover:border-primary/50"
+                >
+                  <Check className="size-4 text-primary" />
+                  {skill}
+                </motion.div>
+              ))}
+            </div>
+
+          </div>
+        </motion.section>
+
+        {/* PROJECTS */}
+        <motion.section
+          id="projects"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{
+            once: true,
+            amount: 0.12,
+          }}
+          variants={sectionVariants}
+          className="bg-foreground px-6 py-28 text-background sm:px-10 lg:px-16"
+        >
+          <div className="mx-auto max-w-6xl">
+
+            <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
+
+              <div>
+                <p className="font-mono text-xs uppercase tracking-[0.22em] text-primary">
+                  03 / Selected work
+                </p>
+
+                <h2 className="mt-5 font-serif text-4xl tracking-tight sm:text-5xl">
+                  Things I&apos;ve shipped.
+                </h2>
+              </div>
+
+              <p className="max-w-xs text-sm leading-6 text-background/60">
+                A few experiments and products that show how I think,
+                design, and build.
+              </p>
+
+            </div>
+
+            <motion.div
+              variants={stagger}
+              className="mt-14 grid gap-6 lg:grid-cols-3"
+            >
+              {projects.map((project) => (
+                <motion.article
+                  key={project.title}
+                  variants={item}
+                  onMouseMove={(e) => {
+                    const card = e.currentTarget
+                    const rect = card.getBoundingClientRect()
+
+                    const x = e.clientX - rect.left
+                    const y = e.clientY - rect.top
+
+                    const rotateX =
+                      ((y - rect.height / 2) / rect.height) * -10
+
+                    const rotateY =
+                      ((x - rect.width / 2) / rect.width) * 10
+
+                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform =
+                      'perspective(1000px) rotateX(0) rotateY(0) scale(1)'
+                  }}
+                  transition={{
+                    duration: 0.25,
+                  }}
+                  style={{
+                    transformStyle: 'preserve-3d',
+                    transition: 'transform 0.15s ease-out',
+                  }}
+                  className="group overflow-hidden rounded-3xl border border-background/15 bg-background/5 shadow-xl"
+                >
+
+                  <div className="relative h-48 overflow-hidden">
+                    <img
+                      src={project.image}
+                      alt={project.title}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-4 p-6">
+
+                    <h3 className="font-serif text-2xl tracking-tight">
+                      {project.title}
+                    </h3>
+
+                    <p className="text-sm leading-6 text-background/70">
+                      {project.description}
+                    </p>
+
+                    <div className="flex flex-wrap gap-2">
+                      {project.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="rounded-full border border-background/20 px-3 py-1 text-xs text-background/80"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+
+                    <a
+                      href={project.github}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-2 inline-flex items-center gap-2 text-sm font-medium text-primary transition-colors hover:text-background"
+                    >
+                      View on GitHub
+                      <ExternalLink className="size-3.5" />
+                    </a>
+
+                  </div>
+                </motion.article>
+              ))}
+            </motion.div>
+
+          </div>
+        </motion.section>
+
+        {/* CONTACT */}
+        <motion.section
+          id="contact"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{
+            once: true,
+            amount: 0.2,
+          }}
+          variants={sectionVariants}
+          className="px-6 py-28 sm:px-10 lg:px-16"
+        >
+          <div className="mx-auto grid max-w-6xl gap-14 lg:grid-cols-[1fr_0.9fr]">
+
+            <div>
+              <p className="font-mono text-xs uppercase tracking-[0.22em] text-primary">
+                04 / Contact
+              </p>
+
+              <h2 className="mt-5 max-w-lg text-balance font-serif text-5xl leading-tight tracking-tight sm:text-7xl">
+                Have an idea?{' '}
+                <span className="text-primary">
+                  Let&apos;s make it real.
+                </span>
+              </h2>
+
+              <a
+                href="mailto:workforraj15@gmail.com"
+                className="mt-10 inline-flex items-center gap-3 text-muted-foreground transition-colors hover:text-foreground"
+              >
+                <Mail className="size-4 text-primary" />
+                workforraj15@gmail.com
+              </a>
+            </div>
+
+            <form
+              className="flex flex-col gap-5"
+              onSubmit={handleSubmit}
+            >
+
               <label className="flex flex-col gap-2 text-sm">
-                <span className="text-muted-foreground">Your name</span>
+                <span className="text-muted-foreground">
+                  Your name
+                </span>
+
                 <input
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      name: e.target.value,
+                    })
+                  }
                   required
                   className="rounded-2xl border border-border bg-card px-4 py-3.5 outline-none transition-colors focus:border-primary"
                   placeholder="Write your name here"
                 />
               </label>
+
               <label className="flex flex-col gap-2 text-sm">
-                <span className="text-muted-foreground">Email address</span>
+                <span className="text-muted-foreground">
+                  Email address
+                </span>
+
                 <input
                   type="email"
                   value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      email: e.target.value,
+                    })
+                  }
                   required
                   className="rounded-2xl border border-border bg-card px-4 py-3.5 outline-none transition-colors focus:border-primary"
                   placeholder="Write your email here"
                 />
               </label>
+
               <label className="flex flex-col gap-2 text-sm">
-                <span className="text-muted-foreground">Message</span>
+                <span className="text-muted-foreground">
+                  Message
+                </span>
+
                 <textarea
                   rows={4}
                   value={formData.message}
-                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      message: e.target.value,
+                    })
+                  }
                   required
                   className="resize-none rounded-2xl border border-border bg-card px-4 py-3.5 outline-none transition-colors focus:border-primary"
                   placeholder="Tell me a little about your project..."
                 />
               </label>
+
               <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                whileHover={{
+                  scale: 1.02,
+                }}
+                whileTap={{
+                  scale: 0.98,
+                }}
                 disabled={status === 'sending'}
                 className="mt-2 inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-4 text-sm font-medium text-primary-foreground disabled:opacity-60"
               >
-                {status === 'sending' ? 'Sending...' : 'Send message'} <ArrowUpRight className="size-4" />
+                {status === 'sending'
+                  ? 'Sending...'
+                  : 'Send message'}
+
+                <ArrowUpRight className="size-4" />
               </motion.button>
+
               {status === 'success' && (
-                <p className="text-sm text-green-600">Message sent! I&apos;ll get back to you soon.</p>
+                <p className="text-sm text-green-600">
+                  Message sent! I&apos;ll get back to you soon.
+                </p>
               )}
+
               {status === 'error' && (
-                <p className="text-sm text-red-500">Something went wrong. Please try emailing me directly.</p>
+                <p className="text-sm text-red-500">
+                  Something went wrong. Please try emailing me directly.
+                </p>
               )}
+
             </form>
+
           </div>
         </motion.section>
 
-        <footer className="border-t border-border px-6 py-8 sm:px-10 lg:px-16"><div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-5 text-xs text-muted-foreground sm:flex-row"><p>© 2026 Raj Kumar Singh. Built with curiosity.</p><div className="flex items-center gap-2"><a href="https://github.com/RajCoder-15" target="_blank" rel="noopener noreferrer" aria-label="GitHub" className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-2 transition-colors hover:border-primary hover:text-foreground"><ExternalLink className="size-4" /> GitHub</a><a href="https://www.linkedin.com/in/raj-singh-6080072a1/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-2 transition-colors hover:border-primary hover:text-foreground"><Mail className="size-4" /> LinkedIn</a></div></div></footer>
+        {/* FOOTER */}
+        <footer className="border-t border-border px-6 py-8 sm:px-10 lg:px-16">
+          <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-5 text-xs text-muted-foreground sm:flex-row">
+
+            <p>
+              © 2026 Raj Kumar Singh. Built with curiosity.
+            </p>
+
+            <div className="flex items-center gap-2">
+
+              <a
+                href="https://github.com/RajCoder-15"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="GitHub"
+                className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-2 transition-colors hover:border-primary hover:text-foreground"
+              >
+                <ExternalLink className="size-4" />
+                GitHub
+              </a>
+
+              <a
+                href="https://www.linkedin.com/in/raj-singh-6080072a1/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="LinkedIn"
+                className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-2 transition-colors hover:border-primary hover:text-foreground"
+              >
+                <Mail className="size-4" />
+                LinkedIn
+              </a>
+
+            </div>
+          </div>
+        </footer>
+
       </motion.div>
     </main>
   )
 }
+
